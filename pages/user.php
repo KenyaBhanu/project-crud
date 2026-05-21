@@ -1,8 +1,15 @@
 <?php
 $selectUser = mysqli_query($koneksi, "SELECT * FROM users");
 $rows = mysqli_fetch_all($selectUser, MYSQLI_ASSOC);
-?>
 
+if (isset($_GET["idDelete"])) {
+    $id =$_GET["idDelete"] ?? 0;
+    $delete = mysqli_query($koneksi, "DELETE FROM users WHERE id='$id'");
+    header("location:?page=user");
+    exit();
+}
+
+?>
 <div class="card">
     <div class="card-header">
             <h2 class="card-title">Users</h2>
@@ -37,8 +44,8 @@ $rows = mysqli_fetch_all($selectUser, MYSQLI_ASSOC);
                             <td><?= $r['email'] ?></td>
                             <td>
                                 <a href="?page=user-create-edit&idEdit=<?= $r["id"] ?>" class="btn btn-success">Edit</a>
-                                <form action="" method="post" class="d-inline">
-                                    <button class="btn btn-danger">Delete</button>
+                                <form action="?page=user&idDelete=<?= $r['id']?>" method="post" class="d-inline">
+                                    <button class="btn btn-danger" onclick="return confirm('YAKIN?')">Delete</button>
                                 </form>
                             </td>
                             <?php }?>
