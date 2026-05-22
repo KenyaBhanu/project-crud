@@ -2,7 +2,6 @@
 $query = mysqli_query($koneksi, "SELECT * FROM roles");
 // "SELECT users.name, users.email, users.id FROM users" untuk mengambil hanya name email dan id agar tidak berat jika data banyak
 $rows = mysqli_fetch_all($query, MYSQLI_ASSOC);
-include 'config/helper.php';
 
 if (isset($_GET["delete"])) {
     $id = $_GET["delete"] ?? 0;
