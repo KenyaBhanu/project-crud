@@ -30,16 +30,6 @@ $status = $_GET["status"] ?? "";
         <?= isset($_GET["edit"]) ? "Edit" : "Create New" ?> Role
     </h4>
     <div class="card-body">
-        <?php if ($status == 'password_not_match'): ?>
-            <div class="alert alert-warning alert-dismissable fade show" role="alert">
-                Password do not match
-            </div>
-        <?php endif ?>
-        <?php if ($status == 'email_exists'): ?>
-            <div class="alert alert-warning alert-dismissable fade show" role="alert">
-                Email already exists
-            </div>
-        <?php endif ?>
         <form action="" method="post">
             <div class="row mb-3">
                 <div class="col-6">
