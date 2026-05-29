@@ -62,15 +62,15 @@ $products = mysqli_fetch_all($selectProduct, MYSQLI_ASSOC);
 
                                         <div class="p-3 text-center">
 
-                                            <h6 class="mb-1">Title Book</h6>
+                                            <h6 class="mb-1"><?= $product["product_name"] ?></h6>
 
                                             <small class="text-muted">
-                                                Category Name
+                                                <?= $product["category_name"] ?>
                                             </small>
 
                                             <div class="mt-2">
-                                                <img src="assets/img/default.jpg" class="img-fluid"
-                                                    style="max-height:150px; object-fit:cover;">
+                                                <img src="assets/uploads/<?= $product["product_image"] ?>" width="150" height=150"
+                                                    style="object-fit: cover;">
                                             </div>
 
                                         </div>
@@ -78,20 +78,18 @@ $products = mysqli_fetch_all($selectProduct, MYSQLI_ASSOC);
                                         <div class="px-3 pb-3 text-center">
 
                                             <h6 class="fw-bold">
-                                                Rp 0
+                                                Rp <?= number_format($product["price"]) ?>
                                             </h6>
 
                                             <p class="text-muted">
-                                                Ready Stock 0 pcs
+                                                Ready Stock <?= $product["qty"] ?>             <?= $product["unit"] ?>
                                             </p>
                                         </div>
                                         <div class="px-3 pb-3 d-flex justify-content-center gap-2">
-                                            <button type="button" class="btn btn-success btn-sm btn-detail-book"
-                                                data-bs-toggle="modal" data-bs-target="#staticBackdrop">
-                                                Detail Book
-                                            </button>
-
-                                            <button type="button" class="btn btn-primary btn-sm">
+                                            <button type="button" class="btn btn-primary btn-sm btn-add-cart"
+                                                data-id="<?= $product['id'] ?>" data-name="<?= $product['product_name'] ?>"
+                                                data-price="<?= $product['price'] ?>"
+                                                data-image="assets/uploads/<?= $product['product_image'] ?>">
                                                 Add To Cart
                                             </button>
                                         </div>
@@ -122,60 +120,7 @@ $products = mysqli_fetch_all($selectProduct, MYSQLI_ASSOC);
 
         <div class="card p-3 mt-3 shadow-sm">
 
-            <div class="d-flex align-items-center my-3">
-                <div class="avatar-circle me-3">
-                    U
-                </div>
-
-                <div>
-                    <small class="text-muted">Member</small>
-                    <div class="fw-semibold">
-                        Username
-                    </div>
-                </div>
-            </div>
-
             <div id="order-items" style="max-height: 350px; overflow-y: auto;">
-
-                <div class="card p-2 mb-2 border-0 shadow-sm">
-
-                    <div class="d-flex justify-content-between align-items-center">
-
-                        <div class="d-flex align-items-center gap-3">
-                            <img class="rounded-circle" src="assets/img/default.jpg" width="45" height="45"
-                                style="object-fit: cover;">
-
-                            <div>
-                                <div class="fw-semibold">Title Book</div>
-                                <small class="text-muted">
-                                    Rp 0
-                                </small>
-                            </div>
-                        </div>
-
-                        <a href="#" class="btn btn-sm btn-outline-danger">
-                            X
-                        </a>
-
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center my-3">
-
-                        <div class="d-flex align-items-center gap-1">
-                            <a href="#" class="btn btn-outline-primary btn-sm">-</a>
-
-                            <span class="fw-semibold px-2">0</span>
-
-                            <a href="#" class="btn btn-outline-primary btn-sm">+</a>
-                        </div>
-
-                        <div class="fw-bold">
-                            Rp 0
-                        </div>
-
-                    </div>
-
-                </div>
 
             </div>
 
@@ -292,6 +237,7 @@ $products = mysqli_fetch_all($selectProduct, MYSQLI_ASSOC);
 
             <form action="" method="POST">
                 <div class="modal-body p-4">
+                    <input type="text" id="cart-data" name="cart-data" class="form-control mb-3">
 
                     <h5 class="mb-3">Pilih Metode Pembayaran</h5>
 
@@ -372,3 +318,140 @@ $products = mysqli_fetch_all($selectProduct, MYSQLI_ASSOC);
         </div>
     </div>
 </div>
+
+<script>
+    let cart = [];
+    document.addEventListener('click', function (e) {
+        if (e.target && e.target.classList.contains('btn-add-cart')) {
+            const id = e.target.getAttribute('data-id');
+            const name = e.target.getAttribute('data-name');
+            const price = e.target.getAttribute('data-price');
+            const image = e.target.getAttribute('data-image');
+
+            const extProducts = cart.find(item => item.id === id);
+            if (extProducts) {
+                extProducts.qty += 1;
+            } else {
+                cart.push({ id, name, price, image, qty: 1 })
+            }
+        }
+        renderCart();
+    })
+
+    function renderCart() {
+        const containerCart = document.getElementById('order-items');
+        containerCart.innerHTML = "";
+
+        if(cart.length === 0) {
+            containerCart.innerHTML = "<p class='text-muted text-center py-3'>Cart is empty</p>"
+        }
+
+        cart.forEach(value => {
+            const itemHtml = `
+            <div class="card p-2 mb-2 border-0 shadow-sm">
+
+                    <div class="d-flex justify-content-between align-items-center">
+
+                        <div class="d-flex align-items-center gap-3">
+                            <img class="rounded-circle" src="${value.image}" width="45" height="45"
+                                style="object-fit: cover;">
+
+                            <div>
+                                <div class="fw-semibold">${value.name}</div>
+                                <small class="text-muted">
+                                    Rp ${(value.price).toLocaleString('id-ID')}</
+                                </small>
+                            </div>
+                        </div>
+
+                        <a href="#" class="btn btn-sm btn-outline-danger btn-delete" data-id=${value.id}>
+                            X
+                        </a>
+
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center my-3">
+
+                        <div class="d-flex align-items-center gap-1">
+                            <a href="#" class="btn btn-outline-primary btn-sm btn-minus" data-id=${value.id}>-</a>
+
+                            <span class="fw-semibold px-2">${value.qty}</span>
+
+                            <a href="#" class="btn btn-outline-primary btn-sm btn-plus" data-id=${value.id}>+</a>
+                        </div>
+
+                        <div class="fw-bold">
+                            Rp ${(value.price * value.qty).toLocaleString('id-ID')}
+                        </div>
+
+                    </div>
+
+                </div>
+            `
+            containerCart.insertAdjacentHTML("beforeend", itemHtml);
+        });
+        updateCart();
+    }
+
+    document.getElementById('order-items').addEventListener('click', function(e){
+        const id = e.target.getAttribute('data-id');
+        if (!id) return;
+
+        const itemIndex = cart.findIndex(item => item.id === id);
+        if(e.target.classList.contains('btn-plus')) {
+            cart[itemIndex].qty += 1;
+        } else if (e.target.classList.contains('btn-minus')){
+            if(cart[itemIndex].qty > 1){
+                cart[itemIndex].qty -= 1;
+            } else {
+                cart.splice(itemIndex, 1);
+            }
+        } else if (e.target.classList.contains('btn-delete')){
+            cart.splice(itemIndex, 1);
+        }
+
+        renderCart();
+    })
+
+    function updateCart() {
+        let subtotal = 0;
+        let tax = 0;
+        let discount = 0;
+
+        cart.forEach(item => {
+            subtotal += item.price * item.qty;
+        })
+        tax = subtotal * 0.1;
+        let total = subtotal + tax - discount;
+
+        const formatRupiah = (number => {
+            return "Rp." + number.toLocaleString('id-ID');
+        })
+
+        document.getElementById('subtotal').innerText = formatRupiah(subtotal);
+        document.getElementById('tax').innerText = formatRupiah(tax);
+        document.getElementById('discount').innerText = formatRupiah(discount);
+        document.getElementById('total-bill').innerText = formatRupiah(total);
+
+        const cartModal = document.querySelector('#paymentModal');
+        if (cartModal){
+            const spans = cartModal.querySelectorAll("span");
+            if(spans.length >= 8) {
+                spans[1].innerText = formatRupiah(subtotal);
+                spans[3].innerText = formatRupiah(tax);
+                spans[5].innerText = "-" + formatRupiah(discount);
+                spans[7].innerText = formatRupiah(total);
+            }
+        }
+
+        document.getElementById('cart-data').value = JSON.stringify(cart);
+    }
+
+    document.getElementById('btn-payment').addEventListener('click', (e) => {
+        if (cart.length === 0){
+            alert('Cart is empty');
+            e.stopPropagation();
+        }
+    })
+
+</script>
